@@ -11,25 +11,23 @@ from bot.helper.telegram_helper import button_build
 
 drive = ["nxUpload", "hnUpload", "bzUpload", "lnUpload"]
 
-def list_buttons(update, context):
+def drive_list(update, context):
     user_id = update.message.from_user.id
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
         return sendMessage('Send a search key along with command', context.bot, update)
     buttons = button_build.ButtonMaker()
-    buttons.sbutton(drive[0], 0)
-    buttons.sbutton(drive[1], 1)
-    buttons.sbutton(drive[2], 2)
-    buttons.sbutton(drive[3], 3)
+    buttons.sbutton(drive[0], f"types 0")
+    buttons.sbutton(drive[1], f"types 1")
+    buttons.sbutton(drive[2], f"types 2")
+    buttons.sbutton(drive[3], f"types 3")
     button = InlineKeyboardMarkup(buttons.build_menu(2))
     sendMarkup('Choose option to upload.', context.bot, update, button)
 
-def select_type(update, context):
+def get_drive_id(update, context):
     query = update.callback_query
-    user_id = query.from_user.id
     msg = query.message
-    key = msg.reply_to_message.text.split(" ", maxsplit=1)[1]
     data = query.data
     data = data.split(" ")
     if data[2] in [0,1,2,3]:
@@ -40,7 +38,7 @@ def select_type(update, context):
         query.answer()
         editMessage("Error", msg)
 
-list_handler = CommandHandler(BotCommands.ListCommand, list_buttons, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-list_type_handler = CallbackQueryHandler(select_type, pattern="types", run_async=True)
-dispatcher.add_handler(list_handler)
-dispatcher.add_handler(list_type_handler)
+drive_handler = CommandHandler(BotCommands.DriveCommand, drive_list, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+drive_type_handler = CallbackQueryHandler(get_drive_id, pattern="types", run_async=True)
+dispatcher.add_handler(drive_handler)
+dispatcher.add_handler(drive_type_handler)
